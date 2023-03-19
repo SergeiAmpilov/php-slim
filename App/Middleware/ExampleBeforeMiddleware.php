@@ -6,7 +6,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response;
 
-class ExampleBeforeMiddleware
+class ExampleBeforeMiddleware implements IMiddleware
 {
     /**
      * Пример промежуточного ПО как вызываемый класс.
@@ -23,7 +23,7 @@ class ExampleBeforeMiddleware
         $existingContent = (string) $response->getBody();
 
         $response = new Response();
-        $response->getBody()->write('BEFORE' . $existingContent);
+        $response->getBody()->write('BEFORE ' . $existingContent);
 
         return $response;
     }
