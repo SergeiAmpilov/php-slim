@@ -4,6 +4,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use App\Middleware\ExampleBeforeMiddleware;
 use DI\Container;
+use Slim\Middleware\MethodOverrideMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -15,22 +16,12 @@ $app = AppFactory::create();
 
 // Add Routing Middleware
 $app->addRoutingMiddleware();
-
 $app->add(\App\Middleware\JsonBodyParserMiddleware::class);
 
+// Add MethodOverride middleware
+$methodOverrideMiddleware = new MethodOverrideMiddleware();
+$app->add($methodOverrideMiddleware);
 
-
-/**
- * Add Error Handling Middleware
- *
- * @param bool $displayErrorDetails -> Should be set to false in production
- * @param bool $logErrors -> Parameter is passed to the default ErrorHandler
- * @param bool $logErrorDetails -> Display error details in error log
- * which can be replaced by a callable of your choice.
-
- * Note: This middleware should be added last. It will not handle any exceptions/errors
- * for middleware added after it.
- */
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
 
