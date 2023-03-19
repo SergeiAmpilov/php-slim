@@ -3,13 +3,22 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use App\Middleware\ExampleBeforeMiddleware;
+use DI\Container;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+// Создание контейнера PHP-DI
+$container = new Container();
+AppFactory::setContainer($container);
 
 $app = AppFactory::create();
 
 // Add Routing Middleware
 $app->addRoutingMiddleware();
+
+$app->add(\App\Middleware\JsonBodyParserMiddleware::class);
+
+
 
 /**
  * Add Error Handling Middleware
@@ -30,10 +39,22 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 })->add(new ExampleBeforeMiddleware())->add(new \App\Middleware\ExampleAfterMiddleware());
 
-$app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
-    $name = $args['name'];
-    $response->getBody()->write("Hello, $name");
+$app->post('/', function (Request $request, Response $response, $args) {
+    $parsedBody = $request->getParsedBody();
+    $response->getBody()->write("<pre>" . print_r($parsedBody,1) . "</pre>");
     return $response;
 });
+
+$app->get('/hello/[{name}]', function (Request $request, Response $response, array $args) {
+    if (empty($args['name'])) {
+        $name = 'demo';
+    } else {
+        $name = $args['name'];
+    }
+
+    $response->getBody()->write("Helllo, $name");
+    return $response;
+});
+
 
 $app->run();
